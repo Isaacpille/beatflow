@@ -17,7 +17,6 @@ class YouTubeService {
         );
       }).toList();
     } catch (e) {
-      print("YouTube search error: $e");
       return [];
     }
   }
@@ -32,7 +31,6 @@ class YouTubeService {
       final streamInfo = manifest.audioOnly.withHighestBitrate();
       return streamInfo.url.toString();
     } catch (e) {
-      print("YouTube stream extraction error: $e");
       throw Exception("Impossible d'extraire le flux audio.");
     }
   }

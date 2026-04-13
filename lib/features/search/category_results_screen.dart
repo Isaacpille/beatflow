@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/youtube_service.dart';
 import '../../services/audio_service.dart';
-import '../../core/models.dart';
+
 import '../../ui/theme/app_theme.dart';
 
 class CategoryResultsScreen extends ConsumerWidget {

@@ -51,7 +51,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
-        audioHandlerProvider.overrideWithValue(audioHandler!),
+        audioHandlerProvider.overrideWithValue(audioHandler),
         authRepositoryProvider.overrideWithValue(authRepo),
       ],
       child: const BeatFlowApp(),

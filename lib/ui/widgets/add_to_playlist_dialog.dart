@@ -33,6 +33,7 @@ class AddToPlaylistDialog extends ConsumerWidget {
                   onTap: () async {
                     if (!alreadyIn) {
                       await ref.read(libraryProvider).addTrackToPlaylist(p.id, track);
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Ajouté à ${p.name}'))

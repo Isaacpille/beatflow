@@ -74,18 +74,16 @@ class BeatFlowAudioHandler extends BaseAudioHandler with SeekHandler {
       await _player.setAudioSource(source);
       mediaItem.add(source.tag as MediaItem);
     } catch (e) {
-      print("Audio load error: $e");
+      // Audio load error handled silently for production
     }
   }
 
   // Implementation of auto-download logic
   Future<void> startDownload(MusicTrack track) async {
      try {
-       print("Auto-downloading: ${track.title}...");
-       final path = await _cache.downloadTrack(track);
-       print("Downloaded to: $path");
+       await _cache.downloadTrack(track);
      } catch (e) {
-       print("Download error for ${track.title}: $e");
+       // Download error handled silently
      }
   }
 }
