@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/audio_service.dart';
 import '../../services/youtube_service.dart';
 import '../../core/models.dart';
+import '../../ui/theme/app_theme.dart';
+import 'category_results_screen.dart';
 
 final searchResultsProvider = FutureProvider.family<List<MusicTrack>, String>((ref, query) async {
   if (query.isEmpty) return [];

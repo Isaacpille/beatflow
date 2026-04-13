@@ -60,13 +60,17 @@ class BeatFlowApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateProvider);
+    final authState = ref.watch(authStateProvider);
 
     return MaterialApp(
       title: 'BeatFlow',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: user == null ? const LoginScreen() : const MainNavigationWrapper(),
+      home: authState.when(
+        data: (user) => user == null ? const LoginScreen() : const MainNavigationWrapper(),
+        loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (e, st) => Scaffold(body: Center(child: Text('Erreur: $e'))),
+      ),
     );
   }
 }
