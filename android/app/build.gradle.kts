@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.isaac.beatflow"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,8 +25,8 @@ android {
         applicationId = "com.isaac.beatflow"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 23
+        targetSdk = 34
         versionCode = flutter.versionCode()
         versionName = flutter.versionName()
         multiDexEnabled = true
