@@ -1,4 +1,4 @@
-name: BeatFlow Premium Build
+name: BeatFlow Premium Build (Diagnostic)
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_ios:
-    name: Build iOS IPA
+  analyze_and_build:
+    name: Analyze and Build
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -21,41 +21,20 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build IPA
-        run: flutter build ios --no-codesign --verbose
+      - name: Run Analyze 
+        run: flutter analyze
+        continue-on-error: false
 
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: BeatFlow-iOS
-          path: build/ios/iphoneos/Runner.app
-
-  build_android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          
-      - name: Install Flutter 
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build APK
+      - name: Build Android APK
         run: flutter build apk --debug --verbose
 
-      - name: Upload APK
+      - name: Build iOS IPA 
+        run: flutter build ios --no-codesign --verbose
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: BeatFlow-Android
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: BeatFlow-Builds
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/ios/iphoneos/Runner.app
