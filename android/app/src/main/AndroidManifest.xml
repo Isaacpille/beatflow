@@ -25,7 +25,7 @@
         </receiver>
 
         <meta-data android:name="com.ryanheise.audioservice.AudioServiceConfig"
-            android:value="com.example.beatflow.MainActivity" />
+            android:value="com.isaac.beatflow.MainActivity" />
 
         <activity
             android:name=".MainActivity"
