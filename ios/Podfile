@@ -36,7 +36,8 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_pod_configurations(target)
+    flutter_modular_ios_pod_configurations(target) if respond_to?(:flutter_modular_ios_pod_configurations)
+    flutter_additional_ios_pod_configurations(target) if respond_to?(:flutter_additional_ios_pod_configurations)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
