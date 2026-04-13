@@ -9,7 +9,7 @@ class BeatFlowAudioHandler extends BaseAudioHandler with SeekHandler {
   final _cache = CacheService();
 
   BeatFlowAudioHandler() {
-    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    _player.playbackEventStream.map(_transformEvent).listen(playbackState.add);
   }
 
   @override
