@@ -1,4 +1,4 @@
-name: Build iOS IPA
+name: BeatFlow Premium Build
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_ios:
+    name: Build iOS IPA
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,17 +20,40 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Install Pods
-        run: |
-          cd ios
-          pod install --repo-update
-        shell: bash
-
       - name: Build IPA
-        run: flutter build ios --no-codesign --verbose
+        run: flutter build ios --no-codesign
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: BeatFlow-App
+          name: BeatFlow-iOS
           path: build/ios/iphoneos/Runner.app
+
+  build_android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Install Flutter 
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BeatFlow-Android
+          path: build/app/outputs/flutter-apk/app-debug.apk
