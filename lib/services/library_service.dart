@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../core/models.dart';
-import '../features/auth/auth_repository.dart';
+
 
 final libraryProvider = Provider((ref) => LibraryRepository());
 

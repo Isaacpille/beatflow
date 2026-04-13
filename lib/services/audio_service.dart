@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'audio_handler.dart';
 import 'youtube_service.dart';
 import '../core/models.dart';
-import 'package:audio_service/audio_service.dart';
 
 final audioHandlerProvider = Provider<BeatFlowAudioHandler>((ref) => throw UnimplementedError());
 

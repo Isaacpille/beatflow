@@ -42,7 +42,7 @@ Future<void> main() async {
         fastForwardInterval: Duration(seconds: 10),
         rewindInterval: Duration(seconds: 10),
       ),
-    ) as BeatFlowAudioHandler;
+    );
   } catch (e) {
     debugPrint("AudioService init error: $e");
     audioHandler = BeatFlowAudioHandler(); 

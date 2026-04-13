@@ -7,7 +7,7 @@ import '../../features/search/search_screen.dart';
 import '../../features/library/library_screen.dart';
 import '../../features/player/mini_player.dart';
 import '../../features/admin/admin_dashboard.dart';
-import '../../features/auth/auth_repository.dart';
+
 
 final navigationProvider = StateProvider<int>((ref) => 0);
 

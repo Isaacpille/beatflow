@@ -11,8 +11,6 @@ final searchResultsProvider = FutureProvider.family<List<MusicTrack>, String>((r
   return YouTubeService().searchTracks(query);
 });
 
-import 'category_results_screen.dart';
-
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
