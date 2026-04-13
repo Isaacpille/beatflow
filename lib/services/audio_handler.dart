@@ -57,17 +57,25 @@ class BeatFlowAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   Future<void> loadTrack(String url, {String? mediaId, String? title, String? artist}) async {
-    final source = AudioSource.uri(
-      Uri.parse(url),
-      tag: MediaItem(
-        id: mediaId ?? url,
-        album: "BeatFlow",
-        title: title ?? "Untitled",
-        artist: artist ?? "Unknown",
-      ),
-    );
-    await _player.setAudioSource(source);
-    mediaItem.add(source.tag as MediaItem);
+    try {
+      final source = AudioSource.uri(
+        Uri.parse(url),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
+        },
+        tag: MediaItem(
+          id: mediaId ?? url,
+          album: "BeatFlow Premium",
+          title: title ?? "Titre inconnu",
+          artist: artist ?? "Artiste inconnu",
+          artUri: Uri.parse("https://github.com/Isaacpille/beatflow/raw/main/assets/icon.png"), // Placeholder
+        ),
+      );
+      await _player.setAudioSource(source);
+      mediaItem.add(source.tag as MediaItem);
+    } catch (e) {
+      print("Audio load error: $e");
+    }
   }
 
   // Implementation of auto-download logic

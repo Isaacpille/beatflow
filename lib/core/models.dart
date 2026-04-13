@@ -8,6 +8,7 @@ class MusicTrack {
   final Duration? duration;
   final bool isDownloaded;
   final bool isLiked;
+  final List<String> playlistIds;
 
   MusicTrack({
     required this.id,
@@ -19,19 +20,21 @@ class MusicTrack {
     this.duration,
     this.isDownloaded = false,
     this.isLiked = false,
+    this.playlistIds = const [],
   });
 
   factory MusicTrack.fromMap(Map<String, dynamic> map) {
     return MusicTrack(
-      id: map['id'],
-      title: map['title'],
-      artist: map['artist'],
-      thumbnailUrl: map['thumbnailUrl'],
+      id: map['id'] ?? '',
+      title: map['title'] ?? 'Unknown Title',
+      artist: map['artist'] ?? 'Unknown Artist',
+      thumbnailUrl: map['thumbnailUrl'] ?? '',
       audioUrl: map['audioUrl'],
       localPath: map['localPath'],
       duration: map['duration'] != null ? Duration(milliseconds: map['duration']) : null,
       isDownloaded: map['isDownloaded'] ?? false,
       isLiked: map['isLiked'] ?? false,
+      playlistIds: List<String>.from(map['playlistIds'] ?? []),
     );
   }
 
@@ -46,6 +49,7 @@ class MusicTrack {
       'duration': duration?.inMilliseconds,
       'isDownloaded': isDownloaded,
       'isLiked': isLiked,
+      'playlistIds': playlistIds,
     };
   }
 
@@ -54,6 +58,7 @@ class MusicTrack {
     bool? isLiked,
     String? localPath,
     String? audioUrl,
+    List<String>? playlistIds,
   }) {
     return MusicTrack(
       id: id,
@@ -65,6 +70,42 @@ class MusicTrack {
       duration: duration,
       isDownloaded: isDownloaded ?? this.isDownloaded,
       isLiked: isLiked ?? this.isLiked,
+      playlistIds: playlistIds ?? this.playlistIds,
     );
+  }
+}
+
+class MusicPlaylist {
+  final String id;
+  final String name;
+  final String ownerId;
+  final List<String> trackIds;
+  final DateTime createdAt;
+
+  MusicPlaylist({
+    required this.id,
+    required this.name,
+    required this.ownerId,
+    this.trackIds = const [],
+    required this.createdAt,
+  });
+
+  factory MusicPlaylist.fromMap(Map<String, dynamic> map, String docId) {
+    return MusicPlaylist(
+      id: docId,
+      name: map['name'] ?? 'Ma Playlist',
+      ownerId: map['ownerId'] ?? '',
+      trackIds: List<String>.from(map['trackIds'] ?? []),
+      createdAt: (map['createdAt'] as dynamic)?.toDate() ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'ownerId': ownerId,
+      'trackIds': trackIds,
+      'createdAt': createdAt,
+    };
   }
 }

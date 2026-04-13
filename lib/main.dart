@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/widgets/navigation_wrapper.dart';
 import 'services/audio_handler.dart';
@@ -14,10 +14,10 @@ import 'features/auth/login_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Hive
-  await Hive.initFlutter();
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
   final authRepo = AuthRepository();
-  await authRepo.init();
 
   if (!kIsWeb) {
     await JustAudioBackground.init(

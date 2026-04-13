@@ -9,6 +9,8 @@ final searchResultsProvider = FutureProvider.family<List<MusicTrack>, String>((r
   return YouTubeService().searchTracks(query);
 });
 
+import 'category_results_screen.dart';
+
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -30,12 +32,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           SliverAppBar(
             floating: true,
             pinned: true,
-            expandedHeight: 120,
-            flexibleSpace: const FlexibleSpaceBar(
-              title: Text('Recherche', style: TextStyle(fontWeight: FontWeight.bold)),
-              centerTitle: false,
-              titlePadding: EdgeInsets.only(left: 16, bottom: 60),
-            ),
+            backgroundColor: AppTheme.backgroundColor,
+            title: const Text('Recherche', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(60),
               child: Padding(
@@ -78,12 +76,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       crossAxisSpacing: 10,
                       childAspectRatio: 1.6,
                       children: [
-                        _CategoryCard('Musique', Colors.pink),
-                        _CategoryCard('Podcasts', Colors.teal),
-                        _CategoryCard('Événements', Colors.purple),
-                        _CategoryCard('Conçus pour vous', Colors.blue),
-                        _CategoryCard('Nouveautés', Colors.orange),
-                        _CategoryCard('Pop', Colors.indigo),
+                        _CategoryCard('Rap FR', Colors.pink, context),
+                        _CategoryCard('Rap US', Colors.blue, context),
+                        _CategoryCard('Pop', Colors.indigo, context),
+                        _CategoryCard('Rock', Colors.redAccent, context),
+                        _CategoryCard('Hip Hop', Colors.orange, context),
+                        _CategoryCard('Années 2010', Colors.teal, context),
+                        _CategoryCard('Années 2016', Colors.purple, context),
+                        _CategoryCard('Podcasts', Colors.green, context),
+                        _CategoryCard('Livres Audio', Colors.brown, context),
+                        _CategoryCard('Nouveautés', Colors.amber, context),
                       ],
                     ),
                   ],
@@ -109,6 +111,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         title: Text(track.title, maxLines: 1, overflow: TextOverflow.ellipsis),
                         subtitle: Text(track.artist),
                         onTap: () => ref.read(playerProvider.notifier).playTrack(track),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.playlist_add),
+                          onPressed: () {
+                            // TODO: Add to playlist dialog
+                          },
+                        ),
                       );
                     },
                   );
@@ -126,17 +134,26 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 class _CategoryCard extends StatelessWidget {
   final String title;
   final Color color;
-  const _CategoryCard(this.title, this.color);
+  final BuildContext context;
+  const _CategoryCard(this.title, this.color, this.context);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CategoryResultsScreen(categoryName: title)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ),
-      padding: const EdgeInsets.all(12),
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 }

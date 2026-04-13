@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/audio_service.dart';
 import '../../ui/theme/app_theme.dart';
 
+import '../../services/library_service.dart';
+import '../../ui/widgets/add_to_playlist_dialog.dart';
+
 class MiniPlayer extends ConsumerWidget {
   const MiniPlayer({super.key});
 
@@ -32,12 +35,9 @@ class MiniPlayer extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Row(
                       children: [
-                        Hero(
-                          tag: 'track_art_${currentTrack.id}',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: Image.network(currentTrack.thumbnailUrl, width: 44, height: 44, fit: BoxFit.cover),
-                          ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(currentTrack.thumbnailUrl, width: 44, height: 44, fit: BoxFit.cover),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -56,7 +56,11 @@ class MiniPlayer extends ConsumerWidget {
                             color: currentTrack.isLiked ? AppTheme.primaryColor : Colors.white,
                             size: 20,
                           ),
-                          onPressed: () => ref.read(playerProvider.notifier).toggleLike(),
+                          onPressed: () => ref.read(libraryProvider).toggleLike(currentTrack),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.playlist_add, size: 20),
+                          onPressed: () => showAddToPlaylistDialog(context, currentTrack),
                         ),
                         IconButton(
                           icon: const Icon(Icons.play_arrow), // Simplification: play/pause logic handled by playerProvider
@@ -66,7 +70,6 @@ class MiniPlayer extends ConsumerWidget {
                     ),
                   ),
                 ),
-                // Progress bar at the bottom
                 const _MiniPlayerProgress(),
               ],
             ),
@@ -83,18 +86,18 @@ class _MiniPlayerProgress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider.notifier);
+    final currentTrack = ref.watch(playerProvider);
     
     return StreamBuilder<Duration>(
       stream: player.positionStream,
       builder: (context, snapshot) {
         final position = snapshot.data ?? Duration.zero;
-        // Ideally we would get duration from another stream or from the track model
-        final total = Duration(minutes: 3); // Placeholder for mock
+        final total = currentTrack?.duration ?? const Duration(minutes: 3);
         
         return LinearProgressIndicator(
-          value: position.inMilliseconds / total.inMilliseconds,
+          value: total.inMilliseconds > 0 ? position.inMilliseconds / total.inMilliseconds : 0,
           backgroundColor: Colors.white10,
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+          valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
           minHeight: 2,
         );
       },

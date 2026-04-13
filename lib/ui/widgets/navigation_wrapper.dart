@@ -1,10 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/library/library_screen.dart';
 import '../../features/player/mini_player.dart';
+import '../../features/admin/admin_dashboard.dart';
+import '../../features/auth/auth_repository.dart';
 
 final navigationProvider = StateProvider<int>((ref) => 0);
 
@@ -14,19 +17,21 @@ class MainNavigationWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(navigationProvider);
+    final user = FirebaseAuth.instance.currentUser;
+    final isAdmin = user?.email == 'isaacpille@icloud.com';
     
     final screens = [
       const HomeScreen(),
       const SearchScreen(),
       const LibraryScreen(),
-      const Center(child: Text("Compte (Bientôt)")), // Placeholder for Auth
+      if (isAdmin) const AdminDashboard() else const Center(child: Text("Paramètres (En cours)")),
     ];
 
     return Scaffold(
-      extendBody: true, // Important for glassmorphism
+      extendBody: true,
       body: Stack(
         children: [
-          screens[selectedIndex],
+          screens[selectedIndex < screens.length ? selectedIndex : 0],
           Positioned(
             left: 0,
             right: 0,
@@ -52,14 +57,18 @@ class MainNavigationWrapper extends ConsumerWidget {
             child: BottomNavigationBar(
               currentIndex: selectedIndex,
               onTap: (index) => ref.read(navigationProvider.notifier).state = index,
-              backgroundColor: Colors.transparent, // Transparent to see the blur
+              backgroundColor: Colors.transparent,
               selectedFontSize: 12,
               unselectedFontSize: 12,
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Accueil'),
-                BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Recherche'),
-                BottomNavigationBarItem(icon: Icon(Icons.library_music_outlined), activeIcon: Icon(Icons.library_music), label: 'Bibliothèque'),
-                BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Compte'),
+              items: [
+                const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Accueil'),
+                const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Recherche'),
+                const BottomNavigationBarItem(icon: Icon(Icons.library_music_outlined), activeIcon: Icon(Icons.library_music), label: 'Bibliothèque'),
+                BottomNavigationBarItem(
+                  icon: Icon(isAdmin ? Icons.admin_panel_settings_outlined : Icons.person_outline), 
+                  activeIcon: Icon(isAdmin ? Icons.admin_panel_settings : Icons.person), 
+                  label: isAdmin ? 'Admin' : 'Compte'
+                ),
               ],
             ),
           ),

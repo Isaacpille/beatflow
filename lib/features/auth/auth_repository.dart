@@ -1,37 +1,58 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 final authRepositoryProvider = Provider((ref) => AuthRepository());
 
 class AuthRepository {
-  static const String boxName = 'authBox';
-  static const String userKey = 'currentUser';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  Future<void> init() async {
-    await Hive.openBox(boxName);
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  User? get currentUser => _auth.currentUser;
+
+  Future<bool> isAdmin() async {
+    if (currentUser == null) return false;
+    final doc = await _db.collection('users').doc(currentUser!.uid).get();
+    return doc.data()?['role'] == 'admin' || currentUser!.email == 'isaacpille@icloud.com';
   }
 
-  bool get isLoggedIn => Hive.box(boxName).get(userKey) != null;
-  String? get currentUserName => Hive.box(boxName).get(userKey);
-
   Future<void> signup(String name, String email, String password) async {
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 1));
-    await Hive.box(boxName).put(userKey, name);
+    final userCredential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    
+    await _db.collection('users').doc(userCredential.user!.uid).set({
+      'name': name,
+      'email': email,
+      'role': 'user',
+      'status': 'active',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> login(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    await Hive.box(boxName).put(userKey, "Isaac"); // Mock login
+    final userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    
+    // Check if banned
+    final doc = await _db.collection('users').doc(userCredential.user!.uid).get();
+    if (doc.data()?['status'] == 'banned') {
+      await logout();
+      throw Exception("Votre compte a été banni.");
+    }
   }
 
   Future<void> logout() async {
-    await Hive.box(boxName).delete(userKey);
+    await _auth.signOut();
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
   }
 }
 
-final authStateProvider = StateProvider<String?>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  return repo.currentUserName;
+final authStateProvider = StreamProvider<User?>((ref) {
+  return ref.watch(authRepositoryProvider).authStateChanges;
 });
