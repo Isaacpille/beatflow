@@ -32,11 +32,11 @@ class MainNavigationWrapper extends ConsumerWidget {
       body: Stack(
         children: [
           screens[selectedIndex < screens.length ? selectedIndex : 0],
-          Positioned(
+          const Positioned(
             left: 0,
             right: 0,
             bottom: kBottomNavigationBarHeight + 10,
-            child: const MiniPlayer(),
+            child: MiniPlayer(),
           ),
         ],
       ),
