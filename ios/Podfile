@@ -38,9 +38,7 @@ post_install do |installer|
     # Adds Flutter.framework to FRAMEWORK_SEARCH_PATHS for all pod targets
     flutter_additional_ios_build_settings(target)
 
-    # Fix for BoringSSL-GRPC: clang on Xcode 16 interprets -GCC_WARN_INHIBIT_ALL_WARNINGS
-    # as "-G CC_WARN_INHIBIT_ALL_WARNINGS" which is invalid for arm64-apple-ios targets.
-    # We must strip this flag from per-file COMPILER_FLAGS.
+    # Fix for BoringSSL-GRPC: clang on Xcode 16 misinterprets -GCC_WARN_INHIBIT_ALL_WARNINGS
     if target.name == 'BoringSSL-GRPC'
       target.source_build_phase.files.each do |file|
         if file.settings && file.settings['COMPILER_FLAGS']
@@ -48,6 +46,13 @@ post_install do |installer|
           flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
           file.settings['COMPILER_FLAGS'] = flags.join(' ')
         end
+      end
+    end
+
+    # Fix for gRPC-Core: Xcode 16 clang is stricter on C++ template keyword usage
+    if target.name == 'gRPC-Core'
+      target.build_configurations.each do |config|
+        config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '$(inherited) -Wno-missing-template-arg-list-after-template-kw'
       end
     end
 
@@ -62,15 +67,6 @@ post_install do |installer|
       end
 
       config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
-
-      # Fix for BoringSSL-GRPC: also strip from target-level GCC settings
-      if target.name == 'BoringSSL-GRPC'
-        config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'NO'
-        cflags = config.build_settings['OTHER_CFLAGS'] || ['$(inherited)']
-        cflags = cflags.split if cflags.is_a?(String)
-        cflags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
-        config.build_settings['OTHER_CFLAGS'] = cflags
-      end
     end
   end
 end
