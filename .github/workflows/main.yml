@@ -9,7 +9,7 @@ jobs:
   analyze_and_build:
     name: Analyze and Build
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       
@@ -26,33 +26,30 @@ jobs:
         run: flutter analyze
         continue-on-error: false
 
-      - name: Fix macOS permissions & Xcode Surgery
+      - name: Fix macOS permissions
         run: |
           xattr -rd com.apple.FinderInfo . || true
-          sed -i '' '/baseConfigurationReference/d' ios/Runner.xcodeproj/project.pbxproj
 
       - name: Build Android APK
-        run: flutter build apk --debug --verbose
+        run: flutter build apk --debug
 
-      - name: Build iOS IPA 
+      - name: Build iOS - precache Flutter engine
+        run: flutter precache --ios
+
+      - name: Build iOS - pod install
         run: |
-          # Step 1: Clean everything
-          flutter clean
-          flutter pub get
-
-          # Step 2: precache generates Flutter.framework BEFORE pod install
-          flutter precache --ios
-
-          # Step 3: Clean ios artifacts so pod install starts fresh
           cd ios
           rm -rf Pods Podfile.lock .symlinks
+          pod install --repo-update
           cd ..
 
-          # Step 4: flutter build ios handles pod install internally with Flutter.framework in place
-          flutter build ios --release --no-codesign --verbose
+      - name: Build iOS IPA
+        run: flutter build ios --release --no-codesign
+        # NO --verbose: keeps logs readable so we can see actual errors
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: BeatFlow-Builds
           path: |
