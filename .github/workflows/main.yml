@@ -17,7 +17,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.22.0'
+          flutter-version: '3.24.0' # Updated for better Xcode 16 support
 
       - name: Get dependencies
         run: flutter pub get
@@ -30,7 +30,13 @@ jobs:
         run: flutter build apk --debug --verbose
 
       - name: Build iOS IPA 
-        run: flutter build ios --no-codesign --verbose
+        run: |
+          # Clean pods to apply linkage changes
+          cd ios
+          rm -rf Pods
+          rm -f Podfile.lock
+          cd ..
+          flutter build ios --release --no-codesign --verbose
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
