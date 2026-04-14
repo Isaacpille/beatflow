@@ -10,6 +10,7 @@ import 'services/audio_handler.dart';
 import 'services/audio_service.dart';
 import 'features/auth/auth_repository.dart';
 import 'features/auth/login_screen.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +42,9 @@ class _BeatFlowAppState extends ConsumerState<BeatFlowApp> {
   Future<void> _initializeApp() async {
     try {
       // 1. Firebase
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
       // 2. Audio Background
       if (!kIsWeb) {
