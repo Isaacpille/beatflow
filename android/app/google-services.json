@@ -1,29 +1,46 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "beatflow-placeholder",
-    "storage_bucket": "beatflow-placeholder.appspot.com"
+    "project_number": "568021852039",
+    "project_id": "beatflow-d1609",
+    "storage_bucket": "beatflow-d1609.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:568021852039:android:e11e21a429980b24b83d22",
         "android_client_info": {
           "package_name": "com.isaac.beatflow"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "568021852039-91r2hrb275414vs15jgrer5t352620dt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "PLACEHOLDER_KEY"
+          "current_key": "AIzaSyBoZX-UqjaqCnqDyzzZcGqUxZQ5acmzfLU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "568021852039-91r2hrb275414vs15jgrer5t352620dt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "568021852039-ncj6d395kjcujg8erofsrdps7erihca4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.isaac.beatflow"
+              }
+            }
+          ]
         }
       }
     }
   ],
-  "configuration_version": "3"
+  "configuration_version": "1"
 }
