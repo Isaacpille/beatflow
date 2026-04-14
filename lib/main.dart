@@ -14,56 +14,100 @@ import 'features/auth/login_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint("Firebase initialization error: $e");
-  }
-
-  final authRepo = AuthRepository();
-
-  if (!kIsWeb) {
-    await JustAudioBackground.init(
-      androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
-      androidNotificationChannelName: 'Audio playback',
-      androidNotificationOngoing: true,
-    );
-  }
-
-  BeatFlowAudioHandler? audioHandler;
-  try {
-    audioHandler = await AudioService.init(
-      builder: () => BeatFlowAudioHandler(),
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
-        androidNotificationChannelName: 'Audio playback',
-        androidNotificationOngoing: true,
-        fastForwardInterval: Duration(seconds: 10),
-        rewindInterval: Duration(seconds: 10),
-      ),
-    );
-  } catch (e) {
-    debugPrint("AudioService init error: $e");
-    audioHandler = BeatFlowAudioHandler(); 
-  }
-
   runApp(
-    ProviderScope(
-      overrides: [
-        audioHandlerProvider.overrideWithValue(audioHandler),
-        authRepositoryProvider.overrideWithValue(authRepo),
-      ],
-      child: const BeatFlowApp(),
+    const ProviderScope(
+      child: BeatFlowApp(),
     ),
   );
 }
 
-class BeatFlowApp extends ConsumerWidget {
+class BeatFlowApp extends ConsumerStatefulWidget {
   const BeatFlowApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BeatFlowApp> createState() => _BeatFlowAppState();
+}
+
+class _BeatFlowAppState extends ConsumerState<BeatFlowApp> {
+  bool _isInitialized = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    try {
+      // 1. Firebase
+      await Firebase.initializeApp();
+
+      // 2. Audio Background
+      if (!kIsWeb) {
+        await JustAudioBackground.init(
+          androidNotificationChannelId: 'com.isaac.beatflow.audio',
+          androidNotificationChannelName: 'Audio playback',
+          androidNotificationOngoing: true,
+        );
+      }
+
+      // 3. Audio Service
+      final audioHandler = await AudioService.init(
+        builder: () => BeatFlowAudioHandler(),
+        config: const AudioServiceConfig(
+          androidNotificationChannelId: 'com.isaac.beatflow.audio',
+          androidNotificationChannelName: 'Audio playback',
+          androidNotificationOngoing: true,
+        ),
+      );
+
+      // Save audioHandler in the provider
+      ref.read(audioHandlerProvider.notifier).state = audioHandler;
+
+      setState(() {
+        _isInitialized = true;
+      });
+    } catch (e, stackTrace) {
+      debugPrint("INITIALIZATION ERROR: $e");
+      debugPrint("STACK TRACE: $stackTrace");
+      setState(() {
+        _error = e.toString();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_error != null) {
+      return MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: SelectableText(
+                'ERREUR DE DÉMARRAGE :\n\n$_error',
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!_isInitialized) {
+      return const MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(
+            child: CircularProgressIndicator(color: Colors.purple),
+          ),
+        ),
+      );
+    }
+
     final authState = ref.watch(authStateProvider);
 
     return MaterialApp(
@@ -73,7 +117,7 @@ class BeatFlowApp extends ConsumerWidget {
       home: authState.when(
         data: (user) => user == null ? const LoginScreen() : const MainNavigationWrapper(),
         loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (e, st) => Scaffold(body: Center(child: Text('Erreur: $e'))),
+        error: (e, st) => Scaffold(body: Center(child: Text('Erreur Auth: $e'))),
       ),
     );
   }

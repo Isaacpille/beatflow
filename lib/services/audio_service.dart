@@ -3,10 +3,12 @@ import 'audio_handler.dart';
 import 'youtube_service.dart';
 import '../core/models.dart';
 
-final audioHandlerProvider = Provider<BeatFlowAudioHandler>((ref) => throw UnimplementedError());
+final audioHandlerProvider = StateProvider<BeatFlowAudioHandler?>((ref) => null);
 
 final playerProvider = StateNotifierProvider<PlayerNotifier, MusicTrack?>((ref) {
-  return PlayerNotifier(ref.watch(audioHandlerProvider), YouTubeService());
+  final handler = ref.watch(audioHandlerProvider);
+  if (handler == null) throw UnimplementedError("AudioHandler non initialisé");
+  return PlayerNotifier(handler, YouTubeService());
 });
 
 class PlayerNotifier extends StateNotifier<MusicTrack?> {
