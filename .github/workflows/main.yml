@@ -36,19 +36,19 @@ jobs:
 
       - name: Build iOS IPA 
         run: |
-          # Aggressive cleanup as per deep analysis
-          cd ios
-          rm -rf Pods
-          rm -rf Podfile.lock
-          rm -rf .symlinks
-          rm -rf Flutter/Flutter.framework
-          rm -rf Flutter/Flutter.podspec
-          cd ..
+          # Step 1: Clean everything
           flutter clean
           flutter pub get
+
+          # Step 2: precache generates Flutter.framework BEFORE pod install
+          flutter precache --ios
+
+          # Step 3: Clean ios artifacts so pod install starts fresh
           cd ios
-          pod install --repo-update
+          rm -rf Pods Podfile.lock .symlinks
           cd ..
+
+          # Step 4: flutter build ios handles pod install internally with Flutter.framework in place
           flutter build ios --release --no-codesign --verbose
 
       - name: Upload Artifacts
