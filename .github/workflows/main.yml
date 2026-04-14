@@ -17,7 +17,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.22.0'
+          flutter-version: '3.22.2'
 
       - name: Get dependencies
         run: flutter pub get
@@ -26,15 +26,26 @@ jobs:
         run: flutter analyze
         continue-on-error: false
 
+      - name: Fix macOS permissions
+        run: sudo xattr -rd com.apple.FinderInfo ${{ github.workspace }}
+
       - name: Build Android APK
         run: flutter build apk --debug --verbose
 
       - name: Build iOS IPA 
         run: |
-          # Clean pods to apply linkage changes
+          # Aggressive cleanup as per deep analysis
           cd ios
           rm -rf Pods
-          rm -f Podfile.lock
+          rm -rf Podfile.lock
+          rm -rf .symlinks
+          rm -rf Flutter/Flutter.framework
+          rm -rf Flutter/Flutter.podspec
+          cd ..
+          flutter clean
+          flutter pub get
+          cd ios
+          pod install --repo-update
           cd ..
           flutter build ios --release --no-codesign --verbose
 
